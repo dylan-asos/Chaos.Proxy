@@ -1,0 +1,247 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C1C987C5-6A52-4FB4-ABE8-A358628FB85E}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Chaos.Proxy.WebApi</RootNamespace>
+    <AssemblyName>Chaos.Proxy.WebApi</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <Use64BitIISExpress />
+    <UseGlobalApplicationHostFile />
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="6.2.2" />
+    <PackageReference Include="Castle.Core" Version="4.2.1" />
+    <PackageReference Include="Castle.Windsor" Version="4.1.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.8.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.Agent.Intercept" Version="2.4.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.8.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.8.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.Web" Version="2.8.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.8.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.8.1" />
+    <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.4" />
+    <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.3" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.3" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.3" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Owin" Version="5.2.3" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.OwinSelfHost" Version="5.2.3" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.WebHost" Version="5.2.3" />
+    <PackageReference Include="Microsoft.Azure.KeyVault.Core" Version="2.0.4" />
+    <PackageReference Include="Microsoft.Data.Edm" Version="5.8.4" />
+    <PackageReference Include="Microsoft.Data.OData" Version="5.8.4" />
+    <PackageReference Include="Microsoft.Data.Services.Client" Version="5.8.4" />
+    <PackageReference Include="Microsoft.Owin" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Owin.Host.HttpListener" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Owin.Hosting" Version="3.1.0" />
+    <PackageReference Include="Microsoft.WindowsAzure.ConfigurationManager" Version="3.2.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Owin" Version="1.0" />
+    <PackageReference Include="Serilog" Version="2.7.1" />
+    <PackageReference Include="System.ComponentModel.EventBasedAsync" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
+    <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
+    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
+    <PackageReference Include="System.Spatial" Version="5.8.4" />
+    <PackageReference Include="WindowsAzure.Storage" Version="8.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ApplicationInsights.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Handlers\ApiHostCache.cs" />
+    <Compile Include="Infrastructure\Http\RequestProxier.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Chance.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\ChaosResponseHeaders.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\ChaosWebApiActionResult.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\ChaoticDelegatingHandler.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\ChaoticResponseFactory.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Configuration\ChaosConfiguration.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Configuration\ChaosSettingError.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Configuration\ChaosSettings.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Configuration\ChaosSettingsValidator.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Configuration\IChaosApiConfiguration.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Configuration\IChaosSettings.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\HandlerSettings.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\IChance.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\IChaoticResponseFactory.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\ICollectionExtensions.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\IHandlerSettings.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\IResponseFiddler.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\IResponseMediaType.cs" />
+    <Compile Include="Infrastructure\Contracts\UpdateChaosPayload.cs" />
+    <Compile Include="Infrastructure\Contracts\UpdateChaosSettings.cs" />
+    <Compile Include="Infrastructure\Contracts\UpdateConfigurationRequest.cs" />
+    <Compile Include="Infrastructure\Mapping\UpdateRequestToConfigurationConverter.cs" />
+    <Compile Include="Infrastructure\Contracts\UpdateResponseDetails.cs" />
+    <Compile Include="Infrastructure\Contracts\UpdateResponseFiddle.cs" />
+    <Compile Include="Infrastructure\Contracts\UpdateUrlPattern.cs" />
+    <Compile Include="Infrastructure\Contracts\ResponseDetails.cs" />
+    <Compile Include="Infrastructure\Contracts\ResponseFiddle.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\ResponseFiddler.cs" />
+    <Compile Include="Infrastructure\Contracts\ResponseMediaType.cs" />
+    <Compile Include="Infrastructure\Contracts\ResponsePayload.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\ThreadSafeRandom.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Timing\ChaosIntervalTimer.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Timing\ConfigurationRotationTimer.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Timing\DisposableChaosTimer.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Timing\IChaosIntervalTimer.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Timing\IConfigurationRotater.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Timing\IRandomDelay.cs" />
+    <Compile Include="Infrastructure\ChaosEngine\Timing\RandomDelay.cs" />
+    <Compile Include="Infrastructure\Mapping\ObjectCopier.cs" />
+    <Compile Include="Infrastructure\ApiConfiguration\CacheInvalidator.cs" />
+    <Compile Include="Infrastructure\Contracts\Constants.cs" />
+    <Compile Include="Controllers\PingController.cs" />
+    <Compile Include="Infrastructure\ExceptionHandling\Errors\HttpResultErrorDetails.cs" />
+    <Compile Include="Infrastructure\Http\ChaosHttpClientFactory.cs" />
+    <Compile Include="Infrastructure\Http\IChaosHttpClientFactory.cs" />
+    <Compile Include="Infrastructure\ApiConfiguration\HttpConfigurationFactory.cs" />
+    <Compile Include="Infrastructure\ExceptionHandling\Errors\ApiErrors.cs" />
+    <Compile Include="Infrastructure\ExceptionHandling\Errors\ErrorDetails.cs" />
+    <Compile Include="Infrastructure\ExceptionHandling\Errors\ErrorLevel.cs" />
+    <Compile Include="Infrastructure\ExceptionHandling\GlobalExceptionHandler.cs" />
+    <Compile Include="Infrastructure\ExceptionHandling\GlobalExceptionLogger.cs" />
+    <Compile Include="Infrastructure\Extensions\ObjectExtensions.cs" />
+    <Compile Include="Infrastructure\HttpResults\ErrorsResult.cs" />
+    <Compile Include="Infrastructure\Injection\Activators\WindsorDependencyResolver.cs" />
+    <Compile Include="Infrastructure\Injection\Activators\WindsorDependencyScope.cs" />
+    <Compile Include="Infrastructure\Injection\Activators\WindsorHttpControllerActivator.cs" />
+    <Compile Include="Infrastructure\Injection\Installers\ControllersInstaller.cs" />
+    <Compile Include="Infrastructure\Injection\Installers\HttpConfigurationInstaller.cs" />
+    <Compile Include="Infrastructure\Injection\Installers\MappingsInstaller.cs" />
+    <Compile Include="Infrastructure\Injection\Installers\StartablesInstaller.cs" />
+    <Compile Include="Infrastructure\Injection\Installers\WebApiContainerFactory.cs" />
+    <Compile Include="Infrastructure\Injection\Startables\TableInitialiserStartable.cs" />
+    <Compile Include="Infrastructure\Logging\ApplicationEvent.cs" />
+    <Compile Include="Infrastructure\Logging\LoggerExtensions.cs" />
+    <Compile Include="Infrastructure\Mapping\HttpResultErrorMapper.cs" />
+    <Compile Include="Startup.cs" />
+    <Compile Include="Infrastructure\TableStorage\ChaosTableClient.cs" />
+    <Compile Include="Controllers\ConfigurationController.cs" />
+    <Compile Include="Infrastructure\Contracts\CreateHostMappingRequest.cs" />
+    <Compile Include="Controllers\HostsController.cs" />
+    <Compile Include="Infrastructure\ApiConfiguration\HostConfigurationChangedEventArgs.cs" />
+    <Compile Include="Infrastructure\Injection\Installers\AssemblyDomainServiceName.cs" />
+    <Compile Include="Infrastructure\Injection\Installers\ComponentsInstaller.cs" />
+    <Compile Include="Infrastructure\ApiConfiguration\RouteConfiguration.cs" />
+    <Compile Include="Infrastructure\TableStorage\ApiHostForwardingSettings.cs" />
+    <Compile Include="Infrastructure\TableStorage\CloudTableExtensions.cs" />
+    <Compile Include="Infrastructure\TableStorage\IChaosProxyHostSettings.cs" />
+    <Compile Include="Infrastructure\TableStorage\IChaosTableClient.cs" />
+    <Compile Include="Infrastructure\TableStorage\Services\ApiChaosConfigurationSettingsData.cs" />
+    <Compile Include="Infrastructure\TableStorage\Services\ApiSettingsData.cs" />
+    <Compile Include="Handlers\ChaosProxyDelegatingHandler.cs" />
+    <Compile Include="Infrastructure\TableStorage\ChaosProxyHostSettings.cs" />
+    <Compile Include="Infrastructure\Http\HttpRequestExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Infrastructure\TableStorage\ChaosApiSettings.cs" />
+    <Compile Include="Infrastructure\TableStorage\Services\IApiChaosConfigurationSettingsData.cs" />
+    <Compile Include="Infrastructure\TableStorage\Services\IApiSettingsData.cs" />
+    <Compile Include="Infrastructure\TableStorage\TableInitialisation.cs" />
+    <Compile Include="Infrastructure\TableStorage\TableNames.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>35934</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:35922/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
