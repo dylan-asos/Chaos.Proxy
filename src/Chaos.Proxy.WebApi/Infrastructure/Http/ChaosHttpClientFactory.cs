@@ -21,7 +21,10 @@ namespace Chaos.Proxy.WebApi.Infrastructure.Http
 
         public HttpClient Create(string apiToForwardToHostName, ChaosConfiguration apiConfiguration)
         {
-            if (_clients.ContainsKey(apiToForwardToHostName)) return _clients[apiToForwardToHostName];
+            if (_clients.ContainsKey(apiToForwardToHostName))
+            {
+                return _clients[apiToForwardToHostName];
+            }
 
             var client =
                 HttpClientFactory.Create(

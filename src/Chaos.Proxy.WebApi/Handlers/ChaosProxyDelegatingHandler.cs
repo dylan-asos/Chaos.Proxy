@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Configuration;
 using Chaos.Proxy.WebApi.Infrastructure.Http;
 using Chaos.Proxy.WebApi.Infrastructure.TableStorage;
 using Chaos.Proxy.WebApi.Infrastructure.TableStorage.Services;
@@ -43,7 +44,9 @@ namespace Chaos.Proxy.WebApi.Handlers
 
                 proxiedRequest = new RequestProxier(request, apiHostDetails, apiToForwardToHostName).CreateProxiedRequest();
 
-                var client = await CreateHttpClientForProxiedRequest(apiToForwardToHostName);
+                var apiConfiguration = await _chaosProxyHostSettings.GetAsync(apiToForwardToHostName);
+
+                var client = CreateHttpClientForProxiedRequest(apiConfiguration, apiToForwardToHostName);
 
                 return await client.SendAsync(proxiedRequest, cancellationToken);
             }
@@ -62,11 +65,9 @@ namespace Chaos.Proxy.WebApi.Handlers
             }
         }
 
-        private async Task<HttpClient> CreateHttpClientForProxiedRequest(string apiToForwardToHostName)
+        private HttpClient CreateHttpClientForProxiedRequest(ChaosConfiguration chaosConfiguration, string apiToForwardToHostName)
         {
-            var apiConfiguration = await _chaosProxyHostSettings.GetAsync(apiToForwardToHostName);
-
-            var client = _chaosHttpClientFactory.Create(apiToForwardToHostName, apiConfiguration);
+            var client = _chaosHttpClientFactory.Create(apiToForwardToHostName, chaosConfiguration);
 
             return client;
         }
