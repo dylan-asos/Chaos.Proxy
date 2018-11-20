@@ -133,7 +133,7 @@ namespace Chaos.Proxy.WebApi.UnitTests.ChaosEngine
             _chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(true);
             _chaosSettings.Setup(f => f.MinResponseDelayTime).Returns(100);
             _chaosSettings.Setup(f => f.MaxResponseDelayTime).Returns(500);
-            _randomDelay.Setup(d => d.DelayFor(100, 500)).Verifiable();
+            _randomDelay.Setup(d => d.DelayFor(100, 500)).ReturnsAsync(300);
 
             await _httpClient.SendAsync(_requestMessage);
 
