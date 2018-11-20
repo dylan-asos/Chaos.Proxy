@@ -39,7 +39,7 @@ namespace Chaos.Proxy.WebApi.Infrastructure.ChaosEngine
             HttpResponseMessage response;
             var delayedTime = 0;
 
-            if (!_chaosTimer.InsideChaosWindow)
+            if (!_chaosTimer.TimeForChaos)
             {
                 return await base.SendAsync(request, cancellationToken);
             }
@@ -69,8 +69,7 @@ namespace Chaos.Proxy.WebApi.Infrastructure.ChaosEngine
 
             if (_chance.Indicated(currentChaosSettings.PercentageOfSlowResponses))
             {
-                delayedTime = _randomDelay.DelayFor(currentChaosSettings.MinResponseDelayTime,
-                    currentChaosSettings.MaxResponseDelayTime);
+                delayedTime = await _randomDelay.DelayFor(currentChaosSettings.MinResponseDelayTime, currentChaosSettings.MaxResponseDelayTime);
             }
 
             if (currentChaosSettings.HttpResponses.Count == 0)

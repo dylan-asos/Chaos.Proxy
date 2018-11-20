@@ -18,26 +18,46 @@ namespace Chaos.Proxy.WebApi.UnitTests.ChaosEngine
     [TestFixture]
     public sealed class ChaosDelegatingHandlerTests
     {
+        private HttpClient _httpClient;
+
+        private ChaoticDelegatingHandler _chaosDelgatingHandler;
+
+        private HttpRequestMessage _requestMessage;
+
+        private Mock<IChance> _chance;
+
+        private Mock<IHandlerSettings> _handlerSettings;
+
+        private Mock<IChaosSettings> _chaosSettings;
+
+        private Mock<IRandomDelay> _randomDelay;
+
+        private Mock<IChaoticResponseFactory> _responseFactory;
+
+        private Mock<IChaosIntervalTimer> _chaosTimer;
+
+        private Mock<IResponseFiddler> _responseFiddler;
+
         [SetUp]
         public void Setup()
         {
-            handlerSettings = new Mock<IHandlerSettings>();
-            chance = new Mock<IChance>();
+            _handlerSettings = new Mock<IHandlerSettings>();
+            _chance = new Mock<IChance>();
 
-            chaosSettings = new Mock<IChaosSettings>();
-            chaosSettings.Setup(f => f.HttpResponses).Returns(new List<ResponseDetails>());
-            chaosSettings.Setup(f => f.ResponseFiddles).Returns(new List<ResponseFiddle>());
-            chaosSettings.SetupGet(f => f.Name).Returns("Test");
+            _chaosSettings = new Mock<IChaosSettings>();
+            _chaosSettings.Setup(f => f.HttpResponses).Returns(new List<ResponseDetails>());
+            _chaosSettings.Setup(f => f.ResponseFiddles).Returns(new List<ResponseFiddle>());
+            _chaosSettings.SetupGet(f => f.Name).Returns("Test");
 
-            handlerSettings.Setup(f => f.Current).Returns(chaosSettings.Object);
+            _handlerSettings.Setup(f => f.Current).Returns(_chaosSettings.Object);
 
-            randomDelay = new Mock<IRandomDelay>();
-            responseFactory = new Mock<IChaoticResponseFactory>();
-            responseFiddler = new Mock<IResponseFiddler>();
-            chaosTimer = new Mock<IChaosIntervalTimer>();
+            _randomDelay = new Mock<IRandomDelay>();
+            _responseFactory = new Mock<IChaoticResponseFactory>();
+            _responseFiddler = new Mock<IResponseFiddler>();
+            _chaosTimer = new Mock<IChaosIntervalTimer>();
 
-            chaosDelgatingHandler = new ChaoticDelegatingHandler(chance.Object, handlerSettings.Object,
-                responseFactory.Object, randomDelay.Object, chaosTimer.Object, responseFiddler.Object)
+            _chaosDelgatingHandler = new ChaoticDelegatingHandler(_chance.Object, _handlerSettings.Object,
+                _responseFactory.Object, _randomDelay.Object, _chaosTimer.Object, _responseFiddler.Object)
             {
                 InnerHandler =
                     new DummyInnerHandler(
@@ -45,40 +65,20 @@ namespace Chaos.Proxy.WebApi.UnitTests.ChaosEngine
                             DummyInnerHandler.ReturnDummyOk())
             };
 
-            httpClient = new HttpClient(chaosDelgatingHandler);
-            requestMessage = new HttpRequestMessage(HttpMethod.Post, "http://www.test.com");
-            requestMessage.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
+            _httpClient = new HttpClient(_chaosDelgatingHandler);
+            _requestMessage = new HttpRequestMessage(HttpMethod.Post, "http://www.test.com");
+            _requestMessage.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
         }
-
-        private HttpClient httpClient;
-
-        private ChaoticDelegatingHandler chaosDelgatingHandler;
-
-        private HttpRequestMessage requestMessage;
-
-        private Mock<IChance> chance;
-
-        private Mock<IHandlerSettings> handlerSettings;
-
-        private Mock<IChaosSettings> chaosSettings;
-
-        private Mock<IRandomDelay> randomDelay;
-
-        private Mock<IChaoticResponseFactory> responseFactory;
-
-        private Mock<IChaosIntervalTimer> chaosTimer;
-
-        private Mock<IResponseFiddler> responseFiddler;
 
         [TestCase(ChaosResponseHeaders.ConfigurationName, "Test")]
         [TestCase(ChaosResponseHeaders.ChanceMiss, "")]
         public async Task When_Interception_Chance_Is_Not_Indicated_Adds_Expected_Headers(string headerName,
             string expectedValue)
         {
-            chaosTimer.SetupGet(s => s.InsideChaosWindow).Returns(true);
-            chance.Setup(s => s.Indicated(It.IsAny<int>())).Returns(false);
+            _chaosTimer.SetupGet(s => s.TimeForChaos).Returns(true);
+            _chance.Setup(s => s.Indicated(It.IsAny<int>())).Returns(false);
 
-            var response = await httpClient.SendAsync(requestMessage);
+            var response = await _httpClient.SendAsync(_requestMessage);
 
             var configHeader = response.Headers.FirstOrDefault(f => f.Key == headerName);
             configHeader.Value.FirstOrDefault().Should().Be(expectedValue);
@@ -87,11 +87,11 @@ namespace Chaos.Proxy.WebApi.UnitTests.ChaosEngine
         [Test]
         public async Task When_Interception_Chance_Is_Indicated_Adds_Chaos_Configuration_Name_Response_Header()
         {
-            chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(false);
-            chaosTimer.SetupGet(f => f.InsideChaosWindow).Returns(true);
-            chaosSettings.Setup(f => f.Name).Returns("Test");
+            _chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(false);
+            _chaosTimer.SetupGet(f => f.TimeForChaos).Returns(true);
+            _chaosSettings.Setup(f => f.Name).Returns("Test");
 
-            var response = await httpClient.SendAsync(requestMessage);
+            var response = await _httpClient.SendAsync(_requestMessage);
 
             var configHeader = response.Headers.FirstOrDefault(f => f.Key == ChaosResponseHeaders.ConfigurationName);
             configHeader.Value.FirstOrDefault().Should().Be("Test");
@@ -100,11 +100,11 @@ namespace Chaos.Proxy.WebApi.UnitTests.ChaosEngine
         [Test]
         public async Task When_Interception_Chance_Is_Indicated_And_Delay_Time_Is_Zero_Does_Not_Add_Response_Header()
         {
-            chaosTimer.SetupGet(f => f.InsideChaosWindow).Returns(true);
-            chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(true);
-            randomDelay.Setup(d => d.DelayFor(It.IsAny<int>(), It.IsAny<int>())).Returns(0);
+            _chaosTimer.SetupGet(f => f.TimeForChaos).Returns(true);
+            _chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(true);
+            _randomDelay.Setup(d => d.DelayFor(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(0);
 
-            var response = await httpClient.SendAsync(requestMessage);
+            var response = await _httpClient.SendAsync(_requestMessage);
 
             var delayHeader = response.Headers.FirstOrDefault(f => f.Key == ChaosResponseHeaders.DelayTime);
             delayHeader.Value.Should().BeNull();
@@ -114,13 +114,13 @@ namespace Chaos.Proxy.WebApi.UnitTests.ChaosEngine
         public async Task
             When_Interception_Chance_Is_Indicated_And_Includes_Slow_Response_Then_Adds_Delay_Time_Response_Header_When_Greater_Than_Zero()
         {
-            chaosTimer.SetupGet(f => f.InsideChaosWindow).Returns(true);
-            chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(true);
-            chaosSettings.Setup(f => f.MinResponseDelayTime).Returns(100);
-            chaosSettings.Setup(f => f.MaxResponseDelayTime).Returns(500);
-            randomDelay.Setup(d => d.DelayFor(100, 500)).Returns(300);
+            _chaosTimer.SetupGet(f => f.TimeForChaos).Returns(true);
+            _chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(true);
+            _chaosSettings.Setup(f => f.MinResponseDelayTime).Returns(100);
+            _chaosSettings.Setup(f => f.MaxResponseDelayTime).Returns(500);
+            _randomDelay.Setup(d => d.DelayFor(100, 500)).ReturnsAsync(300);
 
-            var response = await httpClient.SendAsync(requestMessage);
+            var response = await _httpClient.SendAsync(_requestMessage);
 
             var delayHeader = response.Headers.FirstOrDefault(f => f.Key == ChaosResponseHeaders.DelayTime);
             delayHeader.Value.FirstOrDefault().Should().Be("300");
@@ -129,30 +129,30 @@ namespace Chaos.Proxy.WebApi.UnitTests.ChaosEngine
         [Test]
         public async Task When_Interception_Chance_Is_Indicated_And_Includes_Slow_Response_Then_Should_Delay_Response()
         {
-            chaosTimer.SetupGet(f => f.InsideChaosWindow).Returns(true);
-            chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(true);
-            chaosSettings.Setup(f => f.MinResponseDelayTime).Returns(100);
-            chaosSettings.Setup(f => f.MaxResponseDelayTime).Returns(500);
-            randomDelay.Setup(d => d.DelayFor(100, 500)).Verifiable();
+            _chaosTimer.SetupGet(f => f.TimeForChaos).Returns(true);
+            _chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(true);
+            _chaosSettings.Setup(f => f.MinResponseDelayTime).Returns(100);
+            _chaosSettings.Setup(f => f.MaxResponseDelayTime).Returns(500);
+            _randomDelay.Setup(d => d.DelayFor(100, 500)).Verifiable();
 
-            await httpClient.SendAsync(requestMessage);
+            await _httpClient.SendAsync(_requestMessage);
 
-            randomDelay.Verify();
+            _randomDelay.Verify();
         }
 
         [Test]
         public async Task
             When_Interception_Chance_Is_Indicated_And_Responses_Are_Defined_Returns_Response_From_Factory()
         {
-            responseFactory.Setup(f => f.Build(requestMessage, chaosSettings.Object))
+            _responseFactory.Setup(f => f.Build(_requestMessage, _chaosSettings.Object))
                 .Returns(new HttpResponseMessage(HttpStatusCode.Accepted) {ReasonPhrase = "Chaos"});
-            chaosTimer.SetupGet(f => f.InsideChaosWindow).Returns(true);
-            chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(false);
-            chaosSettings.Setup(f => f.HttpResponses).Returns(ResponseData.GetResponses);
+            _chaosTimer.SetupGet(f => f.TimeForChaos).Returns(true);
+            _chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(false);
+            _chaosSettings.Setup(f => f.HttpResponses).Returns(ResponseData.GetResponses);
 
-            var response = await httpClient.SendAsync(requestMessage);
+            var response = await _httpClient.SendAsync(_requestMessage);
 
-            responseFactory.Verify(f => f.Build(requestMessage, chaosSettings.Object), Times.Once);
+            _responseFactory.Verify(f => f.Build(_requestMessage, _chaosSettings.Object), Times.Once);
             response.ReasonPhrase.Should().Be("Chaos");
         }
 
@@ -160,58 +160,58 @@ namespace Chaos.Proxy.WebApi.UnitTests.ChaosEngine
         public async Task
             When_Interception_Chance_Is_Indicated_And_Responses_Are_Not_Defined_Does_Not_Return_Response_From_Factory()
         {
-            chaosTimer.SetupGet(f => f.InsideChaosWindow).Returns(true);
-            chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(false);
+            _chaosTimer.SetupGet(f => f.TimeForChaos).Returns(true);
+            _chance.SetupSequence(s => s.Indicated(It.IsAny<int>())).Returns(true).Returns(false);
 
-            var response = await httpClient.SendAsync(requestMessage);
+            var response = await _httpClient.SendAsync(_requestMessage);
 
-            responseFactory.Verify(f => f.Build(requestMessage, chaosSettings.Object), Times.Never);
+            _responseFactory.Verify(f => f.Build(_requestMessage, _chaosSettings.Object), Times.Never);
             response.ReasonPhrase.Should().Be("Dummy");
         }
 
         [Test]
         public async Task When_Interception_Chance_Is_Not_Indicated_Does_Not_Return_Response_From_Factory()
         {
-            chaosTimer.SetupGet(s => s.InsideChaosWindow).Returns(true);
-            chance.Setup(s => s.Indicated(It.IsAny<int>())).Returns(false);
+            _chaosTimer.SetupGet(s => s.TimeForChaos).Returns(true);
+            _chance.Setup(s => s.Indicated(It.IsAny<int>())).Returns(false);
 
-            await httpClient.SendAsync(requestMessage);
+            await _httpClient.SendAsync(_requestMessage);
 
-            responseFactory.Verify(f => f.Build(requestMessage, chaosSettings.Object), Times.Never);
+            _responseFactory.Verify(f => f.Build(_requestMessage, _chaosSettings.Object), Times.Never);
         }
 
         [Test]
         public async Task When_No_Current_Setings_Then_Does_Not_Test_For_Chance()
         {
-            chaosTimer.SetupGet(s => s.InsideChaosWindow).Returns(true);
-            handlerSettings.Setup(f => f.Current).Returns(() => null);
+            _chaosTimer.SetupGet(s => s.TimeForChaos).Returns(true);
+            _handlerSettings.Setup(f => f.Current).Returns(() => null);
 
-            await httpClient.SendAsync(requestMessage);
+            await _httpClient.SendAsync(_requestMessage);
 
-            chance.Verify(f => f.Indicated(It.IsAny<int>()), Times.Never);
+            _chance.Verify(f => f.Indicated(It.IsAny<int>()), Times.Never);
         }
 
         [Test]
         public async Task When_Not_Inside_Chaos_Interval_Then_Does_Not_Return_Response_From_Factory()
         {
-            chaosTimer.SetupGet(s => s.InsideChaosWindow).Returns(false);
+            _chaosTimer.SetupGet(s => s.TimeForChaos).Returns(false);
 
-            await httpClient.SendAsync(requestMessage);
+            await _httpClient.SendAsync(_requestMessage);
 
-            responseFactory.Verify(f => f.Build(requestMessage, chaosSettings.Object), Times.Never);
+            _responseFactory.Verify(f => f.Build(_requestMessage, _chaosSettings.Object), Times.Never);
         }
 
         [Test]
         public async Task When_Request_Uri_Is_On_Ignore_Url_List_Then_Does_Not_Apply_Chaos()
         {
-            requestMessage = new HttpRequestMessage(HttpMethod.Post, "http://www.test.com/customer/profile/customers");
+            _requestMessage = new HttpRequestMessage(HttpMethod.Post, "http://www.test.com/customer/profile/customers");
 
-            chaosTimer.SetupGet(f => f.InsideChaosWindow).Returns(true);
-            chaosSettings.Setup(f => f.Name).Returns("Test");
+            _chaosTimer.SetupGet(f => f.TimeForChaos).Returns(true);
+            _chaosSettings.Setup(f => f.Name).Returns("Test");
 
-            chaosSettings.Setup(s => s.IgnoreUrlPattern).Returns(new List<string> {"customer/profile"});
+            _chaosSettings.Setup(s => s.IgnoreUrlPattern).Returns(new List<string> {"customer/profile"});
 
-            var response = await httpClient.SendAsync(requestMessage);
+            var response = await _httpClient.SendAsync(_requestMessage);
 
             var ignoredHeader = response.Headers.FirstOrDefault(f => f.Key == ChaosResponseHeaders.IgnoredUrl);
             ignoredHeader.Value.FirstOrDefault().Should().Be("customer/profile");

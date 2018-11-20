@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine;
 using Chaos.Proxy.WebApi.Infrastructure.Contracts;
 
 namespace Chaos.Proxy.WebApi.UnitTests.ChaosEngine

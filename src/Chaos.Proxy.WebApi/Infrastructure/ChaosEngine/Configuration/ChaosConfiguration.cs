@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 
 namespace Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Configuration
 {
@@ -19,21 +18,20 @@ namespace Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Configuration
 
         public Collection<ChaosSettings> ChaosSettings { get; } = new Collection<ChaosSettings>();
 
+        public List<ChaosSettingError> ValidationErrors { get; } = new List<ChaosSettingError>();
+
+        public bool IsValid()
+        {
+            Validate();
+            return ValidationErrors.Count == 0;
+        }
+
         public void Validate()
         {
-            var errors = new List<ChaosSettingError>();
+            ValidationErrors.Clear();
+
             foreach (var results in ChaosSettings.Select(settings => settings.Validate())
-                .Where(results => results.Count > 0)) errors.InsertRange(0, results);
-
-            if (errors.Count == 0) return;
-
-            var sb = new StringBuilder();
-            foreach (var chaosSettingError in errors)
-            {
-                sb.AppendLine(chaosSettingError.ToString());
-            }
-
-            throw new InvalidOperationException($"Configuration errors detected: {Environment.NewLine} {sb}");
+                .Where(results => results.Count > 0)) ValidationErrors.InsertRange(0, results);
         }
     }
 }

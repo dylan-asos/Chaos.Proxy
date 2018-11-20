@@ -35,22 +35,12 @@ namespace Chaos.Proxy.WebApi.UnitTests
             public async Task Deletes_Configuration_Data()
             {
                 _hostsController.Request = new HttpRequestMessage();
-                _apiSettingsData.Setup(f => f.DeleteAsync("test-key")).Returns(Task.FromResult(0));
-                _chaosConfigurationSettings.Setup(f => f.DeleteAsync("test-key")).Returns(Task.FromResult(0));
+                _apiSettingsData.Setup(f => f.DeleteAsync("test-key")).Returns(Task.CompletedTask);
+                _chaosConfigurationSettings.Setup(f => f.DeleteAsync("test-key")).Returns(Task.CompletedTask);
 
                 var result = await _hostsController.Delete("test-key") as StatusCodeResult;
 
                 result.StatusCode.Should().Be(HttpStatusCode.NoContent);
-            }
-
-            [Test]
-            public async Task Returns_Bad_Request_When_Key_Does_Not_Exist()
-            {
-                _apiSettingsData.Setup(f => f.DeleteAsync("invalid-key")).Throws<InvalidOperationException>();
-
-                var result = await _hostsController.Delete("invalid-key") as BadRequestErrorMessageResult;
-
-                result.Should().NotBeNull();
             }
         }
 
@@ -67,23 +57,11 @@ namespace Chaos.Proxy.WebApi.UnitTests
             }
 
             [Test]
-            public async Task Returns_Bad_Request_When_Invalid_Operation()
-            {
-                _apiSettingsData.Setup(f => f.GenerateChaosUrl("invalid")).Throws<InvalidOperationException>();
-
-                var result =
-                    await _hostsController.Post(new CreateHostMappingRequest {ChaosSubdomainName = "invalid"}) as
-                        BadRequestErrorMessageResult;
-
-                result.Should().NotBeNull();
-            }
-
-            [Test]
             public async Task Returns_Conflict_When_Host_Already_Exists()
             {
                 _apiSettingsData.Setup(f => f.GenerateChaosUrl("some-chaos-host")).Returns("chaos-host");
                 _apiSettingsData.Setup(f => f.GetByHostAsync("chaos-host"))
-                    .Returns(Task.FromResult(new ApiHostForwardingSettings()));
+                    .ReturnsAsync(new ApiHostForwardingSettings());
 
                 var result = await _hostsController.Post(new CreateHostMappingRequest
                     {ChaosSubdomainName = "some-chaos-host"}) as ConflictResult;
@@ -97,7 +75,7 @@ namespace Chaos.Proxy.WebApi.UnitTests
                 _apiSettingsData.Setup(f => f.GenerateChaosUrl("chaos-host")).Returns("chaos-host");
 
                 _apiSettingsData.Setup(f => f.AddAsync("chaos-host", "forward-host", null, 0))
-                    .Returns(Task.FromResult(new ApiHostForwardingSettings {RowKey = "test-success"}));
+                    .ReturnsAsync(new ApiHostForwardingSettings {RowKey = "test-success"});
 
                 var result =
                     await _hostsController.Post(new CreateHostMappingRequest

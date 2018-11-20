@@ -2,7 +2,6 @@
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Hosting;
-using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine;
 using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Configuration;
 using Chaos.Proxy.WebApi.Infrastructure.Contracts;
 using FluentAssertions;
@@ -41,23 +40,23 @@ namespace Chaos.Proxy.WebApi.UnitTests.ChaosEngine
         [Test]
         public void Returns_Media_Type_From_Request_Message_When_One_Is_Available()
         {
-            const string Expected = "application/xml";
-            _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(Expected));
+            const string expected = "application/xml";
+            _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(expected));
 
             var actual = _responseMediaType.GetMediaType(_requestMessage, _chaosSettings.Object);
 
-            actual.Should().Be(Expected);
+            actual.Should().Be(expected);
         }
 
         [Test]
         public void Returns_Media_Type_From_Settings_When_One_Is_Defined()
         {
-            const string Expected = "application/xml";
-            _chaosSettings.Setup(f => f.ResponseTypeMediaType).Returns(Expected);
+            const string expected = "application/xml";
+            _chaosSettings.Setup(f => f.ResponseTypeMediaType).Returns(expected);
 
             var actual = _responseMediaType.GetMediaType(_requestMessage, _chaosSettings.Object);
 
-            actual.Should().Be(Expected);
+            actual.Should().Be(expected);
         }
     }
 }

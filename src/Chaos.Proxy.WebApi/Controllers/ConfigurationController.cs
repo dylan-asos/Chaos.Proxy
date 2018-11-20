@@ -6,6 +6,7 @@ using System.Web.Http.Results;
 using Chaos.Proxy.WebApi.Infrastructure.ApiConfiguration;
 using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Configuration;
 using Chaos.Proxy.WebApi.Infrastructure.Contracts;
+using Chaos.Proxy.WebApi.Infrastructure.Extensions;
 using Chaos.Proxy.WebApi.Infrastructure.Mapping;
 using Chaos.Proxy.WebApi.Infrastructure.TableStorage;
 using Chaos.Proxy.WebApi.Infrastructure.TableStorage.Services;
@@ -50,43 +51,33 @@ namespace Chaos.Proxy.WebApi.Controllers
         [HttpPost]
         public async Task<IHttpActionResult> Post(UpdateConfigurationRequest updateConfiguration)
         {
-            try
+            var apiKey = updateConfiguration.ApiKey;
+
+            var hostForwardSettings = await _apiSettingsData.GetByApiKeyAsync(apiKey);
+            if (hostForwardSettings == null)
             {
-                var apiKey = updateConfiguration.ApiKey;
-
-                var hostForwardSettings = await _apiSettingsData.GetByApiKeyAsync(apiKey);
-                if (hostForwardSettings == null)
-                {
-                    return BadRequest(Constants.InvalidApiKey);
-                }
-
-                var chaosConfiguration = UpdateRequestToConfigurationConverter.ToChaosConfiguration(updateConfiguration);
-                chaosConfiguration.Validate();
-
-                await _chaosConfigurationSettings.CreateOrUpdateAsync(hostForwardSettings, apiKey, chaosConfiguration);
-
-                _cacheInvalidator.Invalidate(hostForwardSettings.ForwardApiHostName);
-
-                return Created(hostForwardSettings.ForwardApiHostName, chaosConfiguration);
+                return BadRequest(Constants.InvalidApiKey);
             }
-            catch (InvalidOperationException validationException)
+
+            var chaosConfiguration = UpdateRequestToConfigurationConverter.ToChaosConfiguration(updateConfiguration);
+            if (!chaosConfiguration.IsValid())
             {
-                return BadRequest(validationException.Message);
+                return BadRequest(chaosConfiguration.ValidationErrors.AsFormattingString());
             }
+
+            await _chaosConfigurationSettings.CreateOrUpdateAsync(hostForwardSettings, apiKey, chaosConfiguration);
+
+            _cacheInvalidator.Invalidate(hostForwardSettings.ForwardApiHostName);
+
+            return Created(hostForwardSettings.ForwardApiHostName, chaosConfiguration);
         }
 
         [HttpDelete]
         public async Task<IHttpActionResult> Delete([FromUri] string apiKey)
         {
-            try
-            {
-                await _chaosConfigurationSettings.DeleteAsync(apiKey);
-                return new StatusCodeResult(HttpStatusCode.NoContent, Request);
-            }
-            catch (InvalidOperationException validationException)
-            {
-                return BadRequest(validationException.Message);
-            }
+            await _chaosConfigurationSettings.DeleteAsync(apiKey);
+
+            return new StatusCodeResult(HttpStatusCode.NoContent, Request);
         }
     }
 }

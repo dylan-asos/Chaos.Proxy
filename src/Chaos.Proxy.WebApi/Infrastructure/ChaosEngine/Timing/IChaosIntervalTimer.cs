@@ -2,6 +2,6 @@
 {
     public interface IChaosIntervalTimer
     {
-        bool InsideChaosWindow { get; }
+        bool TimeForChaos { get; }
     }
 }

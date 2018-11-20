@@ -8,22 +8,22 @@ namespace Chaos.Proxy.WebApi.UnitTests.ChaosEngine
 {
     public class DummyInnerHandler : DelegatingHandler
     {
-        private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handlerFunc;
+        private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> _handlerFunc;
 
         public DummyInnerHandler()
         {
-            handlerFunc = (r, c) => ReturnDummyOk();
+            _handlerFunc = (r, c) => ReturnDummyOk();
         }
 
         public DummyInnerHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handlerFunc)
         {
-            this.handlerFunc = handlerFunc;
+            _handlerFunc = handlerFunc;
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
-            return handlerFunc(request, cancellationToken);
+            return _handlerFunc(request, cancellationToken);
         }
 
         public static Task<HttpResponseMessage> ReturnDummyOk()

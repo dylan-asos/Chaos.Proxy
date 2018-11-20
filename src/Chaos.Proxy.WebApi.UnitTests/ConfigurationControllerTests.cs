@@ -53,11 +53,11 @@ namespace Chaos.Proxy.WebApi.UnitTests
             [Test]
             public async Task Returns_Configuration_From_Data_Source()
             {
-                _apiSettingsData.Setup(f => f.GetByApiKeyAsync("test-key")).Returns(
-                    Task.FromResult(new ApiHostForwardingSettings {ForwardApiHostName = "somedomain.test.com"}));
+                _apiSettingsData.Setup(f => f.GetByApiKeyAsync("test-key")).ReturnsAsync(
+                    new ApiHostForwardingSettings {ForwardApiHostName = "somedomain.test.com"});
 
                 _chaosProxyHostSettings.Setup(f => f.GetAsync("somedomain.test.com"))
-                    .Returns(Task.FromResult(new ChaosConfiguration {Enabled = true}));
+                    .ReturnsAsync(new ChaosConfiguration {Enabled = true});
 
                 var result =
                     await _configurationController.Get("test-key") as
@@ -72,8 +72,8 @@ namespace Chaos.Proxy.WebApi.UnitTests
             [SetUp]
             public void When_A_Successful_Post_Had_Occurred()
             {
-                _apiSettingsData.Setup(f => f.GetByApiKeyAsync("creates-entry")).Returns(
-                    Task.FromResult(new ApiHostForwardingSettings {ForwardApiHostName = "somedomain.test.com"}));
+                _apiSettingsData.Setup(f => f.GetByApiKeyAsync("creates-entry")).ReturnsAsync(
+                    new ApiHostForwardingSettings {ForwardApiHostName = "somedomain.test.com"});
 
                 _configurationController.Request = new HttpRequestMessage();
 
@@ -139,21 +139,10 @@ namespace Chaos.Proxy.WebApi.UnitTests
         public class DeleteTests : ConfigurationControllerTests
         {
             [Test]
-            public async Task Returns_Bad_Request_On_Validation_Error()
-            {
-                _chaosConfigurationSettings.Setup(f => f.DeleteAsync("validation-error"))
-                    .Throws(new InvalidOperationException());
-
-                var result = await _configurationController.Delete("validation-error") as BadRequestErrorMessageResult;
-
-                result.Should().NotBeNull();
-            }
-
-            [Test]
             public async Task Returns_No_Conent_On_Successful_Delete()
             {
                 _configurationController.Request = new HttpRequestMessage();
-                _chaosConfigurationSettings.Setup(f => f.DeleteAsync("deletes-entry")).Returns(Task.FromResult(0));
+                _chaosConfigurationSettings.Setup(f => f.DeleteAsync("deletes-entry")).Returns(Task.CompletedTask);
 
                 var result = await _configurationController.Delete("deletes-entry") as StatusCodeResult;
 

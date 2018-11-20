@@ -8,7 +8,7 @@ namespace Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Timing
     {
         public ChaosIntervalTimer(IChaosApiConfiguration configuration)
         {
-            InsideChaosWindow = configuration.Enabled;
+            TimeForChaos = configuration.Enabled;
 
             if (ShouldNotEnableChaosTimer(configuration))
             {
@@ -20,7 +20,7 @@ namespace Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Timing
             ChaosTimer.Start();
         }
 
-        public bool InsideChaosWindow { get; private set; }
+        public bool TimeForChaos { get; private set; }
 
         private static bool ShouldNotEnableChaosTimer(IChaosApiConfiguration configuration)
         {
@@ -34,7 +34,7 @@ namespace Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Timing
 
         private void OnTimerElapsed(object sender, ElapsedEventArgs e)
         {
-            InsideChaosWindow = !InsideChaosWindow;
+            TimeForChaos = !TimeForChaos;
         }
     }
 }

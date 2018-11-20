@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -24,46 +25,37 @@ namespace Chaos.Proxy.WebApi.Controllers
         [HttpPost]
         public async Task<IHttpActionResult> Post(CreateHostMappingRequest createHostMappingRequest)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var chaosUrl = _apiSettings.GenerateChaosUrl(createHostMappingRequest.ChaosSubdomainName);
-                if (await _apiSettings.GetByHostAsync(chaosUrl) != null)
-                {
-                    return Conflict();
-                }
-
-                var result =
-                    await _apiSettings.AddAsync(createHostMappingRequest.ChaosSubdomainName,
-                        createHostMappingRequest.ForwardHostName, createHostMappingRequest.Scheme,
-                        createHostMappingRequest.Port);
-
-                return Created(createHostMappingRequest.ChaosSubdomainName, result);
+                return BadRequest(ModelState);
             }
-            catch (InvalidOperationException validationException)
+
+            var chaosUrl = _apiSettings.GenerateChaosUrl(createHostMappingRequest.ChaosSubdomainName);
+            if (await _apiSettings.GetByHostAsync(chaosUrl) != null)
             {
-                return BadRequest(validationException.Message);
+                return Conflict();
             }
+
+            var result =
+                await _apiSettings.AddAsync(createHostMappingRequest.ChaosSubdomainName,
+                    createHostMappingRequest.ForwardHostName, createHostMappingRequest.Scheme,
+                    createHostMappingRequest.Port);
+
+            return Created(createHostMappingRequest.ChaosSubdomainName, result);
         }
 
         [HttpDelete]
         public async Task<IHttpActionResult> Delete(string apiKey)
         {
-            try
+            var tasks = new List<Task>()
             {
-                await _apiSettings.DeleteAsync(apiKey);
-                await _chaosConfigurationSettings.DeleteAsync(apiKey);
+                _apiSettings.DeleteAsync(apiKey),
+                _chaosConfigurationSettings.DeleteAsync(apiKey)
+            };
 
-                return new StatusCodeResult(HttpStatusCode.NoContent, Request);
-            }
-            catch (InvalidOperationException validationException)
-            {
-                return BadRequest(validationException.Message);
-            }
+            await Task.WhenAll(tasks);
+
+            return new StatusCodeResult(HttpStatusCode.NoContent, Request);
         }
     }
 }
