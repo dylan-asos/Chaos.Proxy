@@ -58,7 +58,7 @@ namespace Chaos.Proxy.WebApi.Infrastructure.ApiConfiguration
             ServicePointManager.UseNagleAlgorithm = false;
             ServicePointManager.Expect100Continue = false;
             ServicePointManager.MaxServicePointIdleTime = 10000;
-
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             ThreadPool.SetMinThreads(250, 250);
         }
 
