@@ -44,7 +44,7 @@ namespace Chaos.Proxy.WebApi.Handlers
 
                 proxiedRequest = new RequestProxier(request, apiHostDetails, apiToForwardToHostName).CreateProxiedRequest();
 
-                var apiConfiguration = await _chaosProxyHostSettings.GetAsync(apiToForwardToHostName);
+                var apiConfiguration = await _chaosProxyHostSettings.GetAsync(apiHostDetails.ApiKey);
 
                 var client = CreateHttpClientForProxiedRequest(apiConfiguration, apiToForwardToHostName);
 

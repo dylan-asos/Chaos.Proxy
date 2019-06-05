@@ -5,6 +5,6 @@ namespace Chaos.Proxy.WebApi.Infrastructure.TableStorage
 {
     public interface IChaosProxyHostSettings
     {
-        Task<ChaosConfiguration> GetAsync(string hostName);
+        Task<ChaosConfiguration> GetAsync(string apiKey);
     }
 }

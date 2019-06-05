@@ -25,12 +25,12 @@ namespace Chaos.Proxy.WebApi.Infrastructure.TableStorage
 
         private CloudTable Table => _tableClient.GetTableReference(TableNames.ApiConfigurations);
 
-        public async Task<ChaosConfiguration> GetAsync(string hostName)
+        public async Task<ChaosConfiguration> GetAsync(string apiKey)
         {
-            if (_hostSettings.ContainsKey(hostName)) return _hostSettings[hostName];
+            if (_hostSettings.ContainsKey(apiKey)) return _hostSettings[apiKey];
 
-            var settings = await LoadConfigurationFromTableStorage(hostName);
-            _hostSettings.TryAdd(hostName, settings);
+            var settings = await LoadConfigurationFromTableStorage(apiKey);
+            _hostSettings.TryAdd(apiKey, settings);
 
             return settings;
         }
@@ -40,10 +40,10 @@ namespace Chaos.Proxy.WebApi.Infrastructure.TableStorage
             _hostSettings.TryRemove(eventArgs.HostName, out _);
         }
 
-        private async Task<ChaosConfiguration> LoadConfigurationFromTableStorage(string hostName)
+        private async Task<ChaosConfiguration> LoadConfigurationFromTableStorage(string apiKey)
         {
             var query = new TableQuery<ChaosApiSettingsTableEntity>().Where(
-                TableQuery.GenerateFilterCondition(TableConstants.PartitionKey, QueryComparisons.Equal, hostName));
+                TableQuery.GenerateFilterCondition(TableConstants.RowKey, QueryComparisons.Equal, apiKey));
 
             var queryResults =
                 await Table.ExecuteQueryAsync(query, new TableContinuationToken(), CancellationToken.None);
