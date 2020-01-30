@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using Chaos.Proxy.WebApi.Infrastructure.ApiConfiguration;
 using Chaos.Proxy.WebApi.Infrastructure.Contracts;
 using Chaos.Proxy.WebApi.Infrastructure.TableStorage.Services;
 
@@ -14,12 +15,15 @@ namespace Chaos.Proxy.WebApi.Controllers
         private readonly IApiSettingsData _apiSettings;
 
         private readonly IApiChaosConfigurationSettingsData _chaosConfigurationSettings;
+        private readonly ICacheInvalidator _cacheInvalidator;
 
         public HostsController(IApiSettingsData apiSettings,
-            IApiChaosConfigurationSettingsData chaosConfigurationSettings)
+            IApiChaosConfigurationSettingsData chaosConfigurationSettings,
+            ICacheInvalidator cacheInvalidator)
         {
             _apiSettings = apiSettings;
             _chaosConfigurationSettings = chaosConfigurationSettings;
+            _cacheInvalidator = cacheInvalidator;
         }
 
         [HttpPost]
@@ -47,6 +51,8 @@ namespace Chaos.Proxy.WebApi.Controllers
         [HttpDelete]
         public async Task<IHttpActionResult> Delete(string apiKey)
         {
+            var hostForwardSettings = await _apiSettings.GetByApiKeyAsync(apiKey);
+
             var tasks = new List<Task>()
             {
                 _apiSettings.DeleteAsync(apiKey),
@@ -54,6 +60,8 @@ namespace Chaos.Proxy.WebApi.Controllers
             };
 
             await Task.WhenAll(tasks);
+
+            _cacheInvalidator.Invalidate(hostForwardSettings.ForwardApiHostName);
 
             return new StatusCodeResult(HttpStatusCode.NoContent, Request);
         }
