@@ -14,7 +14,7 @@ namespace Chaos.Proxy.WebApi.UnitTests
         [SetUp]
         public void Init()
         {
-            _chaosHttpClientFactory = new ChaosHttpClientFactory(new CacheInvalidator());
+            _chaosHttpClientFactory = new ChaosHttpClientFactory();
         }
 
         [Test]

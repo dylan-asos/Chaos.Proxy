@@ -3,7 +3,6 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
-using Chaos.Proxy.WebApi.Infrastructure.ApiConfiguration;
 using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Configuration;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage.Table.Protocol;
@@ -17,17 +16,15 @@ namespace Chaos.Proxy.WebApi.Infrastructure.TableStorage
 
         private readonly IChaosTableClient _tableClient;
 
-        public ChaosProxyHostSettings(ICacheInvalidator cacheInvalidator, IChaosTableClient tableClient)
+        public ChaosProxyHostSettings(IChaosTableClient tableClient)
         {
             _tableClient = tableClient;
-            cacheInvalidator.HostConfigurationChanged += OnHostConfigurationChanged;
         }
 
         private CloudTable Table => _tableClient.GetTableReference(TableNames.ApiConfigurations);
 
         public async Task<ChaosConfiguration> GetAsync(string apiKey)
         {
-
             if (_memoryCache.Contains(apiKey))
             {
                 return (ChaosConfiguration)_memoryCache.Get(apiKey);
@@ -38,11 +35,6 @@ namespace Chaos.Proxy.WebApi.Infrastructure.TableStorage
             _memoryCache.Add(apiKey, settings, DateTimeOffset.UtcNow.AddSeconds(30));
 
             return settings;
-        }
-
-        private void OnHostConfigurationChanged(object sender, HostConfigurationChangedEventArgs eventArgs)
-        {
-            _memoryCache.Remove(eventArgs.HostName);
         }
 
         private async Task<ChaosConfiguration> LoadConfigurationFromTableStorage(string apiKey)

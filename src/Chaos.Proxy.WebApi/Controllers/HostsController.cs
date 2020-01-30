@@ -56,12 +56,11 @@ namespace Chaos.Proxy.WebApi.Controllers
             var tasks = new List<Task>()
             {
                 _apiSettings.DeleteAsync(apiKey),
-                _chaosConfigurationSettings.DeleteAsync(apiKey)
+                _chaosConfigurationSettings.DeleteAsync(apiKey),
+                _cacheInvalidator.Invalidate(hostForwardSettings.ForwardApiHostName)
             };
 
             await Task.WhenAll(tasks);
-
-            _cacheInvalidator.Invalidate(hostForwardSettings.ForwardApiHostName);
 
             return new StatusCodeResult(HttpStatusCode.NoContent, Request);
         }

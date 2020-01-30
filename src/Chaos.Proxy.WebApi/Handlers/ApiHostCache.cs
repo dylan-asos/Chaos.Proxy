@@ -7,7 +7,12 @@ using Chaos.Proxy.WebApi.Infrastructure.TableStorage.Services;
 
 namespace Chaos.Proxy.WebApi.Handlers
 {
-    public class ApiHostCache
+    public interface IApiHostCache
+    {
+        Task<ApiHostForwardingSettings> GetHost(Uri requestUri);
+    }
+
+    public class ApiHostCache : IApiHostCache
     {
         private readonly IApiSettingsData _apiSettingsData;
 

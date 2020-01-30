@@ -27,6 +27,8 @@ namespace Chaos.Proxy.WebApi.UnitTests
 
         private Mock<IApiSettingsData> _apiSettingsData;
 
+        private Mock<IApiHostCache> _apiHostCache;
+
         private HttpClient _httpClient;
 
         private HttpRequestMessage _message;
@@ -39,9 +41,9 @@ namespace Chaos.Proxy.WebApi.UnitTests
             _chaosProxyHostSettings = new Mock<IChaosProxyHostSettings>();
             _chaosHttpClientFactory = new Mock<IChaosHttpClientFactory>();
             _apiSettingsData = new Mock<IApiSettingsData>();
-
+            _apiHostCache = new Mock<IApiHostCache>();
             _chaosProxyDelegatingHandler = new ChaosProxyDelegatingHandler(_chaosProxyHostSettings.Object,
-                _chaosHttpClientFactory.Object, _apiSettingsData.Object);
+                _chaosHttpClientFactory.Object, _apiSettingsData.Object, _apiHostCache.Object);
 
             _httpClient = new HttpClient(new TestHandler((r, c) => TestHandler.Return200()));
 
@@ -54,6 +56,9 @@ namespace Chaos.Proxy.WebApi.UnitTests
         [Test]
         public async Task Creates_Proxied_Request_For_Expected_Domain()
         {
+            _apiHostCache.Setup(c => c.GetHost(new Uri("http://subdomain.test.com")))
+                .ReturnsAsync(new ApiHostForwardingSettings(){ForwardApiHostName = "forwarded.domain.com"});
+
             _apiSettingsData.Setup(d => d.GetByHostAsync("subdomain.test.com"))
                 .ReturnsAsync(new ApiHostForwardingSettings {ForwardApiHostName = "forwarded.domain.com"});
 
@@ -68,6 +73,7 @@ namespace Chaos.Proxy.WebApi.UnitTests
         [Test]
         public async Task When_Host_Doesnt_Exist_Returns_404()
         {
+
             var result = await _invoker.SendAsync(_message, new CancellationToken());
 
             result.StatusCode.Should().Be(HttpStatusCode.NotFound);

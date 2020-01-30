@@ -56,7 +56,7 @@ namespace Chaos.Proxy.WebApi.UnitTests
                 _apiSettingsData.Setup(f => f.GetByApiKeyAsync("test-key")).ReturnsAsync(
                     new ApiHostForwardingSettings {ForwardApiHostName = "somedomain.test.com"});
 
-                _chaosProxyHostSettings.Setup(f => f.GetAsync("somedomain.test.com"))
+                _chaosProxyHostSettings.Setup(f => f.GetAsync("test-key"))
                     .ReturnsAsync(new ChaosConfiguration {Enabled = true});
 
                 var result =
@@ -142,6 +142,8 @@ namespace Chaos.Proxy.WebApi.UnitTests
             public async Task Returns_No_Conent_On_Successful_Delete()
             {
                 _configurationController.Request = new HttpRequestMessage();
+                _apiSettingsData.Setup(f => f.GetByApiKeyAsync("deletes-entry")).ReturnsAsync(
+                    new ApiHostForwardingSettings {ForwardApiHostName = "somedomain.test.com"});
                 _chaosConfigurationSettings.Setup(f => f.DeleteAsync("deletes-entry")).Returns(Task.CompletedTask);
 
                 var result = await _configurationController.Delete("deletes-entry") as StatusCodeResult;

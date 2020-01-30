@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Runtime.Caching;
-using Chaos.Proxy.WebApi.Infrastructure.ApiConfiguration;
 using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine;
 using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Configuration;
 using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Timing;
@@ -13,11 +11,6 @@ namespace Chaos.Proxy.WebApi.Infrastructure.Http
     public class ChaosHttpClientFactory : IChaosHttpClientFactory
     {
         private readonly MemoryCache _memoryCache = MemoryCache.Default;
-
-        public ChaosHttpClientFactory(ICacheInvalidator cacheInvalidator)
-        {
-            cacheInvalidator.HostConfigurationChanged += OnHostConfigurationChanged;
-        }
 
         public HttpClient Create(string apiToForwardToHostName, ChaosConfiguration apiConfiguration)
         {
@@ -44,14 +37,6 @@ namespace Chaos.Proxy.WebApi.Infrastructure.Http
             _memoryCache.Add(cacheKey, client, DateTimeOffset.UtcNow.AddSeconds(30));
 
             return client;
-        }
-
-        private void OnHostConfigurationChanged(object sender,
-            HostConfigurationChangedEventArgs hostConfigurationChangedEventArgs)
-        {
-            string cacheKey = "client:" + hostConfigurationChangedEventArgs.HostName;
-
-            _memoryCache.Remove(cacheKey);
         }
     }
 }

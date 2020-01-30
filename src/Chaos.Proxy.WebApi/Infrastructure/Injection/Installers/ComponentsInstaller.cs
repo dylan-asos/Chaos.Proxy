@@ -23,9 +23,13 @@ namespace Chaos.Proxy.WebApi.Infrastructure.Injection.Installers
                 Component.For<IChaosTableClient>().ImplementedBy<ChaosTableClient>().LifestyleTransient());
 
             container.Register(
+                Component.For<IApiHostCache>().ImplementedBy<ApiHostCache>().LifestyleSingleton());
+
+            container.Register(
                 Component.For<ICacheInvalidator>().ImplementedBy<CacheInvalidator>().LifestyleSingleton());
             container.Register(Component.For<IChaosHttpClientFactory>().ImplementedBy<ChaosHttpClientFactory>()
                 .LifestyleSingleton());
+
             container.Register(Component.For<ChaosProxyDelegatingHandler>().LifestyleSingleton());
 
             container.Register(Component.For<IChaosProxyHostSettings>().ImplementedBy<ChaosProxyHostSettings>()

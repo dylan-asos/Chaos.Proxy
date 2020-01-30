@@ -194,7 +194,6 @@
     <Compile Include="Controllers\ConfigurationController.cs" />
     <Compile Include="Infrastructure\Contracts\CreateHostMappingRequest.cs" />
     <Compile Include="Controllers\HostsController.cs" />
-    <Compile Include="Infrastructure\ApiConfiguration\HostConfigurationChangedEventArgs.cs" />
     <Compile Include="Infrastructure\Injection\Installers\AssemblyDomainServiceName.cs" />
     <Compile Include="Infrastructure\Injection\Installers\ComponentsInstaller.cs" />
     <Compile Include="Infrastructure\ApiConfiguration\RouteConfiguration.cs" />

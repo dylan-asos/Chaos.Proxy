@@ -1,26 +1,33 @@
 ﻿using System;
+using System.Runtime.Caching;
+using System.Threading.Tasks;
+using Chaos.Proxy.WebApi.Infrastructure.TableStorage.Services;
 
 namespace Chaos.Proxy.WebApi.Infrastructure.ApiConfiguration
 {
     public interface ICacheInvalidator
     {
-        event EventHandler<HostConfigurationChangedEventArgs> HostConfigurationChanged;
-
-        void Invalidate(string hostName);
+        Task Invalidate(string hostName);
     }
 
     public class CacheInvalidator : ICacheInvalidator
     {
-        public event EventHandler<HostConfigurationChangedEventArgs> HostConfigurationChanged;
+        private readonly IApiSettingsData _apiSettings;
 
-        public void Invalidate(string hostName)
+        readonly MemoryCache _cache = MemoryCache.Default;
+
+        public CacheInvalidator(IApiSettingsData apiSettings)
         {
-            OnHostConfigurationChanged(new HostConfigurationChangedEventArgs {HostName = hostName});
+            _apiSettings = apiSettings;
         }
 
-        protected virtual void OnHostConfigurationChanged(HostConfigurationChangedEventArgs e)
+        public async Task Invalidate(string hostName)
         {
-            HostConfigurationChanged?.Invoke(this, e);
+            var result = await _apiSettings.GetByHostAsync(hostName);
+
+            _cache.Remove(hostName);
+            _cache.Remove("client:" + hostName);
+            _cache.Remove(result.ApiKey);
         }
     }
 }

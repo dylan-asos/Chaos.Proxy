@@ -18,6 +18,7 @@ namespace Chaos.Proxy.WebApi.UnitTests
     {
         private Mock<IApiSettingsData> _apiSettingsData;
         private Mock<IApiChaosConfigurationSettingsData> _chaosConfigurationSettings;
+        private Mock<ICacheInvalidator> _cacheInvalidator;
 
         private HostsController _hostsController;
 
@@ -26,8 +27,9 @@ namespace Chaos.Proxy.WebApi.UnitTests
         {
             _apiSettingsData = new Mock<IApiSettingsData>();
             _chaosConfigurationSettings = new Mock<IApiChaosConfigurationSettingsData>();
+            _cacheInvalidator = new Mock<ICacheInvalidator>();
 
-            _hostsController = new HostsController(_apiSettingsData.Object, _chaosConfigurationSettings.Object, new CacheInvalidator());
+            _hostsController = new HostsController(_apiSettingsData.Object, _chaosConfigurationSettings.Object, _cacheInvalidator.Object);
         }
 
         public class DeleteTests : HostsControllerTests
@@ -36,9 +38,13 @@ namespace Chaos.Proxy.WebApi.UnitTests
             public async Task Deletes_Configuration_Data()
             {
                 _hostsController.Request = new HttpRequestMessage();
+                
+                _apiSettingsData.Setup(f => f.GetByApiKeyAsync("test-key")).ReturnsAsync(
+                    new ApiHostForwardingSettings {ForwardApiHostName = "somedomain.test.com"});
+
                 _apiSettingsData.Setup(f => f.DeleteAsync("test-key")).Returns(Task.CompletedTask);
                 _chaosConfigurationSettings.Setup(f => f.DeleteAsync("test-key")).Returns(Task.CompletedTask);
-
+                _cacheInvalidator.Setup(f => f.Invalidate("test-key")).Returns(Task.CompletedTask);
                 var result = await _hostsController.Delete("test-key") as StatusCodeResult;
 
                 result.StatusCode.Should().Be(HttpStatusCode.NoContent);

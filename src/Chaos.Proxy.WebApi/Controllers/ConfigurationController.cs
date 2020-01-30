@@ -66,7 +66,7 @@ namespace Chaos.Proxy.WebApi.Controllers
 
             await _chaosConfigurationSettings.CreateOrUpdateAsync(hostForwardSettings, apiKey, chaosConfiguration);
 
-            _cacheInvalidator.Invalidate(hostForwardSettings.ForwardApiHostName);
+            await _cacheInvalidator.Invalidate(hostForwardSettings.ForwardApiHostName);
 
             return Created(hostForwardSettings.ForwardApiHostName, chaosConfiguration);
         }
@@ -78,7 +78,7 @@ namespace Chaos.Proxy.WebApi.Controllers
 
             await _chaosConfigurationSettings.DeleteAsync(apiKey);
 
-             _cacheInvalidator.Invalidate(hostForwardSettings.ForwardApiHostName);
+            await _cacheInvalidator.Invalidate(hostForwardSettings.ForwardApiHostName);
 
             return new StatusCodeResult(HttpStatusCode.NoContent, Request);
         }

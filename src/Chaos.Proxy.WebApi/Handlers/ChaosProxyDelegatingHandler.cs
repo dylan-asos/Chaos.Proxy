@@ -12,18 +12,19 @@ namespace Chaos.Proxy.WebApi.Handlers
 {
     public class ChaosProxyDelegatingHandler : DelegatingHandler
     {
-        private readonly ApiHostCache _apiHostCache;
+        private readonly IApiHostCache _apiHostCache;
 
         private readonly IChaosHttpClientFactory _chaosHttpClientFactory;
 
         private readonly IChaosProxyHostSettings _chaosProxyHostSettings;
 
+
         public ChaosProxyDelegatingHandler(IChaosProxyHostSettings chaosProxyHostSettings,
-            IChaosHttpClientFactory httpClientFactory, IApiSettingsData apiSettingsData)
+            IChaosHttpClientFactory httpClientFactory, IApiSettingsData apiSettingsData, IApiHostCache apiHostCache)
         {
             _chaosProxyHostSettings = chaosProxyHostSettings;
             _chaosHttpClientFactory = httpClientFactory;
-            _apiHostCache = new ApiHostCache(apiSettingsData);
+            _apiHostCache = apiHostCache;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
