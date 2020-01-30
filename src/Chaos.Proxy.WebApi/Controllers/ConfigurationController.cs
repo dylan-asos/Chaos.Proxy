@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
@@ -75,7 +74,11 @@ namespace Chaos.Proxy.WebApi.Controllers
         [HttpDelete]
         public async Task<IHttpActionResult> Delete([FromUri] string apiKey)
         {
+            var hostForwardSettings = await _apiSettingsData.GetByApiKeyAsync(apiKey);
+
             await _chaosConfigurationSettings.DeleteAsync(apiKey);
+
+             _cacheInvalidator.Invalidate(hostForwardSettings.ForwardApiHostName);
 
             return new StatusCodeResult(HttpStatusCode.NoContent, Request);
         }
