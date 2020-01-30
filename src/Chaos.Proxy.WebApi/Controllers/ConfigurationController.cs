@@ -42,7 +42,7 @@ namespace Chaos.Proxy.WebApi.Controllers
                 return BadRequest(Constants.InvalidApiKey);
             }
 
-            var apiConfiguration = await _chaosProxyHostSettings.GetAsync(hostForwardSettings.ForwardApiHostName);
+            var apiConfiguration = await _chaosProxyHostSettings.GetAsync(apiKey);
 
             return new OkNegotiatedContentResult<ChaosConfiguration>(apiConfiguration, this);
         }

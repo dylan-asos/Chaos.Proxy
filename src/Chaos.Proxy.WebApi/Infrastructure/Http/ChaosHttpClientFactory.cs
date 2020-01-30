@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Net.Http;
+using System.Runtime.Caching;
 using Chaos.Proxy.WebApi.Infrastructure.ApiConfiguration;
 using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine;
 using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Configuration;
@@ -11,8 +12,7 @@ namespace Chaos.Proxy.WebApi.Infrastructure.Http
 {
     public class ChaosHttpClientFactory : IChaosHttpClientFactory
     {
-        private readonly ConcurrentDictionary<string, HttpClient> _clients =
-            new ConcurrentDictionary<string, HttpClient>();
+        private readonly MemoryCache _memoryCache = MemoryCache.Default;
 
         public ChaosHttpClientFactory(ICacheInvalidator cacheInvalidator)
         {
@@ -21,9 +21,11 @@ namespace Chaos.Proxy.WebApi.Infrastructure.Http
 
         public HttpClient Create(string apiToForwardToHostName, ChaosConfiguration apiConfiguration)
         {
-            if (_clients.ContainsKey(apiToForwardToHostName))
+            string cacheKey = "client:" + apiToForwardToHostName;
+
+            if (_memoryCache.Contains(cacheKey))
             {
-                return _clients[apiToForwardToHostName];
+                return (HttpClient)_memoryCache.Get(cacheKey);
             }
 
             var client =
@@ -39,7 +41,7 @@ namespace Chaos.Proxy.WebApi.Infrastructure.Http
                 ? apiConfiguration.HttpClientTimeoutInSeconds
                 : 15);
 
-            _clients.TryAdd(apiToForwardToHostName, client);
+            _memoryCache.Add(cacheKey, client, DateTimeOffset.UtcNow.AddSeconds(30));
 
             return client;
         }
@@ -47,7 +49,9 @@ namespace Chaos.Proxy.WebApi.Infrastructure.Http
         private void OnHostConfigurationChanged(object sender,
             HostConfigurationChangedEventArgs hostConfigurationChangedEventArgs)
         {
-            _clients.TryRemove(hostConfigurationChangedEventArgs.HostName, out _);
+            string cacheKey = "client:" + hostConfigurationChangedEventArgs.HostName;
+
+            _memoryCache.Remove(cacheKey);
         }
     }
 }

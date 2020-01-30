@@ -1,5 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
 using Chaos.Proxy.WebApi.Infrastructure.ApiConfiguration;
@@ -12,8 +13,7 @@ namespace Chaos.Proxy.WebApi.Infrastructure.TableStorage
 {
     public class ChaosProxyHostSettings : IChaosProxyHostSettings
     {
-        private readonly ConcurrentDictionary<string, ChaosConfiguration> _hostSettings =
-            new ConcurrentDictionary<string, ChaosConfiguration>();
+        private readonly MemoryCache _memoryCache = MemoryCache.Default;
 
         private readonly IChaosTableClient _tableClient;
 
@@ -27,17 +27,22 @@ namespace Chaos.Proxy.WebApi.Infrastructure.TableStorage
 
         public async Task<ChaosConfiguration> GetAsync(string apiKey)
         {
-            if (_hostSettings.ContainsKey(apiKey)) return _hostSettings[apiKey];
+
+            if (_memoryCache.Contains(apiKey))
+            {
+                return (ChaosConfiguration)_memoryCache.Get(apiKey);
+            }
 
             var settings = await LoadConfigurationFromTableStorage(apiKey);
-            _hostSettings.TryAdd(apiKey, settings);
+
+            _memoryCache.Add(apiKey, settings, DateTimeOffset.UtcNow.AddSeconds(30));
 
             return settings;
         }
 
         private void OnHostConfigurationChanged(object sender, HostConfigurationChangedEventArgs eventArgs)
         {
-            _hostSettings.TryRemove(eventArgs.HostName, out _);
+            _memoryCache.Remove(eventArgs.HostName);
         }
 
         private async Task<ChaosConfiguration> LoadConfigurationFromTableStorage(string apiKey)

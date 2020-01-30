@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
 using Chaos.Proxy.WebApi.Infrastructure.TableStorage;
 using Chaos.Proxy.WebApi.Infrastructure.TableStorage.Services;
@@ -10,8 +11,7 @@ namespace Chaos.Proxy.WebApi.Handlers
     {
         private readonly IApiSettingsData _apiSettingsData;
 
-        private readonly ConcurrentDictionary<string, ApiHostForwardingSettings> _cachedHosts =
-            new ConcurrentDictionary<string, ApiHostForwardingSettings>();
+        private readonly MemoryCache _memoryCache = MemoryCache.Default;
 
         public ApiHostCache(IApiSettingsData apiSettingsData)
         {
@@ -24,14 +24,14 @@ namespace Chaos.Proxy.WebApi.Handlers
 
             var host = requestUri.Host;
 
-            if (!_cachedHosts.ContainsKey(host))
+            if (!_memoryCache.Contains(host))
             {
                 apiHostDetails = await _apiSettingsData.GetByHostAsync(host);
-                if (apiHostDetails != null) _cachedHosts.TryAdd(host, apiHostDetails);
+                if (apiHostDetails != null) _memoryCache.Add(host, apiHostDetails, DateTimeOffset.UtcNow.AddSeconds(30));
             }
             else
             {
-                apiHostDetails = _cachedHosts[host];
+                apiHostDetails = (ApiHostForwardingSettings)_memoryCache.Get(host);
             }
 
             return apiHostDetails;

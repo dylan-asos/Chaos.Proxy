@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
 using Chaos.Proxy.WebApi.Controllers;
+using Chaos.Proxy.WebApi.Infrastructure.ApiConfiguration;
 using Chaos.Proxy.WebApi.Infrastructure.Contracts;
 using Chaos.Proxy.WebApi.Infrastructure.TableStorage;
 using Chaos.Proxy.WebApi.Infrastructure.TableStorage.Services;
@@ -26,7 +27,7 @@ namespace Chaos.Proxy.WebApi.UnitTests
             _apiSettingsData = new Mock<IApiSettingsData>();
             _chaosConfigurationSettings = new Mock<IApiChaosConfigurationSettingsData>();
 
-            _hostsController = new HostsController(_apiSettingsData.Object, _chaosConfigurationSettings.Object);
+            _hostsController = new HostsController(_apiSettingsData.Object, _chaosConfigurationSettings.Object, new CacheInvalidator());
         }
 
         public class DeleteTests : HostsControllerTests
