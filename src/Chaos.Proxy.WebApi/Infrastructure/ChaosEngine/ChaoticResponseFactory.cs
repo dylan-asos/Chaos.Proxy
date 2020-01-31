@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Web;
 using Chaos.Proxy.WebApi.Infrastructure.ChaosEngine.Configuration;
 
 namespace Chaos.Proxy.WebApi.Infrastructure.ChaosEngine
@@ -26,7 +27,10 @@ namespace Chaos.Proxy.WebApi.Infrastructure.ChaosEngine
             }
 
             var chaosPayload = chaosResponse.Payloads.TakeRandom();
-            response.Content = new StringContent(chaosPayload.Content, Encoding.UTF8,
+
+            var decodedContent = HttpUtility.HtmlDecode(chaosPayload.Content);
+
+            response.Content = new StringContent(decodedContent, Encoding.UTF8,
                 _responseMediaType.GetMediaType(requestMessage, chaosSettings));
 
             return response;

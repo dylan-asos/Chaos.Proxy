@@ -18,7 +18,7 @@ namespace Chaos.Proxy.WebApi.Handlers
 
         private readonly MemoryCache _memoryCache = MemoryCache.Default;
 
-        private  ConcurrentDictionary<string, string> apiKeyLookup = new ConcurrentDictionary<string, string>();
+        private readonly ConcurrentDictionary<string, string> _apiKeyLookup = new ConcurrentDictionary<string, string>();
 
         public ApiHostCache(IApiSettingsData apiSettingsData)
         {
@@ -27,29 +27,26 @@ namespace Chaos.Proxy.WebApi.Handlers
 
         public async Task<ApiHostForwardingSettings> GetHost(Uri requestUri)
         {
-            ApiHostForwardingSettings apiHostDetails;
-
             var host = requestUri.Host;
-            string cacheKey = "host-settings:";
 
-            if (apiKeyLookup.TryGetValue(host, out var apiKey))
+            if (_apiKeyLookup.TryGetValue(host, out var cacheKey))
             {
-                cacheKey += apiKey;
-            }
-
-            if (!_memoryCache.Contains(cacheKey))
-            {
-                apiHostDetails = await _apiSettingsData.GetByHostAsync(host);
-                if (apiHostDetails != null)
+                if (_memoryCache.Contains(cacheKey))
                 {
-                    _memoryCache.Add(host, apiHostDetails, DateTimeOffset.UtcNow.AddSeconds(30));
-                    apiKeyLookup.TryAdd(host, cacheKey);
+                    return (ApiHostForwardingSettings) _memoryCache.Get(cacheKey);
                 }
             }
-            else
+
+            var apiHostDetails = await _apiSettingsData.GetByHostAsync(host);
+            if (apiHostDetails == null)
             {
-                apiHostDetails = (ApiHostForwardingSettings)_memoryCache.Get(host);
+                return null;
             }
+
+            cacheKey = $"host-settings:{apiHostDetails.ApiKey}";
+
+            _apiKeyLookup.TryAdd(host, cacheKey);
+            _memoryCache.Add(cacheKey, apiHostDetails, DateTimeOffset.UtcNow.AddSeconds(30));
 
             return apiHostDetails;
         }
