@@ -12,9 +12,9 @@ namespace Chaos.Proxy.WebApi.Infrastructure.Http
     {
         private readonly MemoryCache _memoryCache = MemoryCache.Default;
 
-        public HttpClient Create(string apiToForwardToHostName, ChaosConfiguration apiConfiguration)
+        public HttpClient Create(string apiKey, ChaosConfiguration apiConfiguration)
         {
-            string cacheKey = "client:" + apiToForwardToHostName;
+            string cacheKey = "client:" + apiKey;
 
             if (_memoryCache.Contains(cacheKey))
             {

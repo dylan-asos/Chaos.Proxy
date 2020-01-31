@@ -51,16 +51,15 @@ namespace Chaos.Proxy.WebApi.Controllers
         [HttpDelete]
         public async Task<IHttpActionResult> Delete(string apiKey)
         {
-            var hostForwardSettings = await _apiSettings.GetByApiKeyAsync(apiKey);
-
             var tasks = new List<Task>()
             {
                 _apiSettings.DeleteAsync(apiKey),
                 _chaosConfigurationSettings.DeleteAsync(apiKey),
-                _cacheInvalidator.Invalidate(hostForwardSettings.ForwardApiHostName)
             };
 
             await Task.WhenAll(tasks);
+
+            _cacheInvalidator.Invalidate(apiKey);
 
             return new StatusCodeResult(HttpStatusCode.NoContent, Request);
         }

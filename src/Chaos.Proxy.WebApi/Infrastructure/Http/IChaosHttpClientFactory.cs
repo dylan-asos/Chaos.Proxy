@@ -5,6 +5,6 @@ namespace Chaos.Proxy.WebApi.Infrastructure.Http
 {
     public interface IChaosHttpClientFactory
     {
-        HttpClient Create(string apiToForwardToHostName, ChaosConfiguration apiConfiguration);
+        HttpClient Create(string apiKey, ChaosConfiguration apiConfiguration);
     }
 }

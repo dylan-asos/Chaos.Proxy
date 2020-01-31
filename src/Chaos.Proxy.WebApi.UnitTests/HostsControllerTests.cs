@@ -44,7 +44,6 @@ namespace Chaos.Proxy.WebApi.UnitTests
 
                 _apiSettingsData.Setup(f => f.DeleteAsync("test-key")).Returns(Task.CompletedTask);
                 _chaosConfigurationSettings.Setup(f => f.DeleteAsync("test-key")).Returns(Task.CompletedTask);
-                _cacheInvalidator.Setup(f => f.Invalidate("test-key")).Returns(Task.CompletedTask);
                 var result = await _hostsController.Delete("test-key") as StatusCodeResult;
 
                 result.StatusCode.Should().Be(HttpStatusCode.NoContent);

@@ -57,7 +57,7 @@ namespace Chaos.Proxy.WebApi.UnitTests
         public async Task Creates_Proxied_Request_For_Expected_Domain()
         {
             _apiHostCache.Setup(c => c.GetHost(new Uri("http://subdomain.test.com")))
-                .ReturnsAsync(new ApiHostForwardingSettings(){ForwardApiHostName = "forwarded.domain.com"});
+                .ReturnsAsync(new ApiHostForwardingSettings(){ForwardApiHostName = "forwarded.domain.com", RowKey = "test-api-key"});
 
             _apiSettingsData.Setup(d => d.GetByHostAsync("subdomain.test.com"))
                 .ReturnsAsync(new ApiHostForwardingSettings {ForwardApiHostName = "forwarded.domain.com"});
@@ -67,7 +67,7 @@ namespace Chaos.Proxy.WebApi.UnitTests
             result.StatusCode.Should().Be(HttpStatusCode.OK);
 
             _chaosHttpClientFactory.Verify(
-                f => f.Create("forwarded.domain.com", It.IsAny<ChaosConfiguration>()), Times.Once);
+                f => f.Create("test-api-key", It.IsAny<ChaosConfiguration>()), Times.Once);
         }
 
         [Test]

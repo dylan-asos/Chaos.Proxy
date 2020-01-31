@@ -94,7 +94,7 @@ namespace Chaos.Proxy.WebApi.UnitTests
             [Test]
             public void Then_The_Cache_Should_Be_Invalidated()
             {
-                _cacheInvalidator.Verify(f => f.Invalidate("somedomain.test.com"), Times.Once);
+                _cacheInvalidator.Verify(f => f.Invalidate("creates-entry"), Times.Once);
             }
 
             [Test]

@@ -25,14 +25,16 @@ namespace Chaos.Proxy.WebApi.Infrastructure.TableStorage
 
         public async Task<ChaosConfiguration> GetAsync(string apiKey)
         {
-            if (_memoryCache.Contains(apiKey))
+            string cacheKey = "chaos-settings:" + apiKey;
+
+            if (_memoryCache.Contains(cacheKey))
             {
-                return (ChaosConfiguration)_memoryCache.Get(apiKey);
+                return (ChaosConfiguration)_memoryCache.Get(cacheKey);
             }
 
             var settings = await LoadConfigurationFromTableStorage(apiKey);
 
-            _memoryCache.Add(apiKey, settings, DateTimeOffset.UtcNow.AddSeconds(30));
+            _memoryCache.Add(cacheKey, settings, DateTimeOffset.UtcNow.AddSeconds(30));
 
             return settings;
         }

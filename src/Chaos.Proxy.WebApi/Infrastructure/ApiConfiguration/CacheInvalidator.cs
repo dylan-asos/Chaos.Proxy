@@ -1,13 +1,11 @@
-﻿using System;
-using System.Runtime.Caching;
-using System.Threading.Tasks;
+﻿using System.Runtime.Caching;
 using Chaos.Proxy.WebApi.Infrastructure.TableStorage.Services;
 
 namespace Chaos.Proxy.WebApi.Infrastructure.ApiConfiguration
 {
     public interface ICacheInvalidator
     {
-        Task Invalidate(string hostName);
+        void Invalidate(string apiKey);
     }
 
     public class CacheInvalidator : ICacheInvalidator
@@ -21,13 +19,11 @@ namespace Chaos.Proxy.WebApi.Infrastructure.ApiConfiguration
             _apiSettings = apiSettings;
         }
 
-        public async Task Invalidate(string hostName)
+        public void Invalidate(string apiKey)
         {
-            var result = await _apiSettings.GetByHostAsync(hostName);
-
-            _cache.Remove(hostName);
-            _cache.Remove("client:" + hostName);
-            _cache.Remove(result.ApiKey);
+            _cache.Remove("host-settings:" + apiKey);
+            _cache.Remove("chaos-settings:" + apiKey);
+            _cache.Remove("client:" + apiKey);
         }
     }
 }

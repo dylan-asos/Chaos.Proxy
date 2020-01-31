@@ -47,7 +47,7 @@ namespace Chaos.Proxy.WebApi.Handlers
 
                 var apiConfiguration = await _chaosProxyHostSettings.GetAsync(apiHostDetails.ApiKey);
 
-                var client = CreateHttpClientForProxiedRequest(apiConfiguration, apiToForwardToHostName);
+                var client = CreateHttpClientForProxiedRequest(apiConfiguration, apiHostDetails.ApiKey);
 
                 return await client.SendAsync(proxiedRequest, cancellationToken);
             }
@@ -66,9 +66,9 @@ namespace Chaos.Proxy.WebApi.Handlers
             }
         }
 
-        private HttpClient CreateHttpClientForProxiedRequest(ChaosConfiguration chaosConfiguration, string apiToForwardToHostName)
+        private HttpClient CreateHttpClientForProxiedRequest(ChaosConfiguration chaosConfiguration, string apiKey)
         {
-            var client = _chaosHttpClientFactory.Create(apiToForwardToHostName, chaosConfiguration);
+            var client = _chaosHttpClientFactory.Create(apiKey, chaosConfiguration);
 
             return client;
         }
